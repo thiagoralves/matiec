@@ -64,28 +64,6 @@ typedef struct {
     u_int16_t body[STR_MAX_LEN];
 } WSTRING;
 */
-/*
-# if __WORDSIZE == 64
-#define __32b_sufix
-#define __64b_sufix L
-#else
-#define __32b_sufix L
-#define __64b_sufix LL
-#endif
-*/
-
-#if 0
-# if __WORDSIZE == 64
-#define __32b_sufix
-#define __64b_sufix L
-#else
-#define __32b_sufix L
-/* changed this from LL to L temporarily. It was causing a bug when compiling resulting code with gcc.
- * I have other things to worry about at the moment.. 
- */
-#define __64b_sufix L   
-#endif
-#endif
 
 #define __lit(type,value,...) (type)value##__VA_ARGS__
 // Keep this macro expention step to let sfx(__VA_ARGS__) change into L or LL
@@ -94,12 +72,12 @@ typedef struct {
 #define __BOOL_LITERAL(value) __literal(BOOL,value)
 #define __SINT_LITERAL(value) __literal(SINT,value)
 #define __INT_LITERAL(value) __literal(INT,value)
-#define __DINT_LITERAL(value) __literal(DINT,value,INT32_C())
-#define __LINT_LITERAL(value) __literal(LINT,value,INT64_C())
+#define __DINT_LITERAL(value) __literal(DINT,INT32_C(value))
+#define __LINT_LITERAL(value) __literal(LINT,INT64_C(value))
 #define __USINT_LITERAL(value) __literal(USINT,value)
 #define __UINT_LITERAL(value) __literal(UINT,value)
-#define __UDINT_LITERAL(value) __literal(UDINT,value,UINT32_C())
-#define __ULINT_LITERAL(value) __literal(ULINT,value,UINT64_C())
+#define __UDINT_LITERAL(value) __literal(UDINT,UINT32_C(value))
+#define __ULINT_LITERAL(value) __literal(ULINT,UINT64_C(value))
 #define __REAL_LITERAL(value) __literal(REAL,value,f)
 #define __LREAL_LITERAL(value) __literal(LREAL,value)
 #define __TIME_LITERAL(value) __literal(TIME,value)
@@ -109,8 +87,8 @@ typedef struct {
 #define __STRING_LITERAL(count,value) (STRING){count,value}
 #define __BYTE_LITERAL(value) __literal(BYTE,value)
 #define __WORD_LITERAL(value) __literal(WORD,value)
-#define __DWORD_LITERAL(value) __literal(DWORD,value,UINT32_C())
-#define __LWORD_LITERAL(value) __literal(LWORD,value,UINT64_C())
+#define __DWORD_LITERAL(value) __literal(DWORD,UINT32_C(value))
+#define __LWORD_LITERAL(value) __literal(LWORD,UINT64_C(value))
 
 
 typedef union __IL_DEFVAR_T {
