@@ -2288,9 +2288,6 @@ void *visit(global_var_list_c *symbol) {
       break;
 
     case location_list_vf:
-      for(int i = 0; i < list->n; i++) {
-        list->get_element(i)->accept(*this);
-      }
       break;
 
     default:
