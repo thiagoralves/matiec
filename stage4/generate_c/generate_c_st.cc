@@ -1264,7 +1264,7 @@ void *visit(for_statement_c *symbol) {
   if (symbol->by_expression == NULL) {
     /* increment by 1 */    
     symbol->control_variable->accept(*this);
-    s4o.print(" < ");
+    s4o.print(" <= ");
     symbol->end_expression->accept(*this);
   } else {
     /* increment by user defined value  */
