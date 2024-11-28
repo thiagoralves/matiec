@@ -1260,38 +1260,7 @@ void *visit(for_statement_c *symbol) {
   s4o.print(s4o.indent_spaces + "{\n");
   s4o.indent_right();
   s4o.print(s4o.indent_spaces + "int __do_increment = 0;\n");
-  s4o.print(s4o.indent_spaces + "while( ");
-  if (symbol->by_expression == NULL) {
-    /* increment by 1 */    
-    symbol->control_variable->accept(*this);
-    s4o.print(" <= ");
-    symbol->end_expression->accept(*this);
-  } else {
-    /* increment by user defined value  */
-    /* The user defined increment value may be negative, in which case
-     * the expression to determine whether we have reached the end of the loop
-     * changes from a '<=' to a '>='.
-     * Since the increment value may change during runtime (remember, it is
-     * an expression, so may contain variables), choosing which test
-     * to use has to be done at runtime.
-     */
-    s4o.print("((");
-    symbol->by_expression->accept(*this);
-    s4o.print(") > 0)? (");
-    symbol->control_variable->accept(*this);
-    s4o.print(" + (");
-    symbol->by_expression->accept(*this);
-    s4o.print(") <= (");
-    symbol->end_expression->accept(*this);
-    s4o.print(")) : (");
-    symbol->control_variable->accept(*this);
-    s4o.print(" + (");
-    symbol->by_expression->accept(*this);
-    s4o.print(") >= (");
-    symbol->end_expression->accept(*this);
-    s4o.print(")) ");
-  }
-  s4o.print(" ) {\n");
+  s4o.print(s4o.indent_spaces + "while(1) {\n");
 
   s4o.indent_right();
 
@@ -1331,8 +1300,41 @@ void *visit(for_statement_c *symbol) {
   s4o.indent_left();
   s4o.print(s4o.indent_spaces + "} else __do_increment = 1;\n");
 
+  s4o.print(s4o.indent_spaces + "if(");
+  if (symbol->by_expression == NULL) {
+    /* increment by 1 */    
+    symbol->control_variable->accept(*this);
+    s4o.print(" <= ");
+    symbol->end_expression->accept(*this);
+  } else {
+    /* increment by user defined value  */
+    /* The user defined increment value may be negative, in which case
+     * the expression to determine whether we have reached the end of the loop
+     * changes from a '<=' to a '>='.
+     * Since the increment value may change during runtime (remember, it is
+     * an expression, so may contain variables), choosing which test
+     * to use has to be done at runtime.
+     */
+    s4o.print("((");
+    symbol->by_expression->accept(*this);
+    s4o.print(") > 0)? (");
+    symbol->control_variable->accept(*this);
+    s4o.print(" <= (");
+    symbol->end_expression->accept(*this);
+    s4o.print(")) : (");
+    symbol->control_variable->accept(*this);
+    s4o.print(" >= (");
+    symbol->end_expression->accept(*this);
+    s4o.print(")) ");
+  }
+  s4o.print(s4o.indent_spaces + "){\n");
+  s4o.indent_right();
+
   /*  the body part  */
   symbol->statement_list->accept(*this);
+
+  s4o.indent_left();
+  s4o.print(s4o.indent_spaces + "}else break;\n");
 
   s4o.indent_left();
   s4o.print(s4o.indent_spaces + "}\n");
