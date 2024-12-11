@@ -776,7 +776,7 @@ __xorbool_expand(XOR__BOOL__BOOL) /* Overloaded function */
 
 #define __iec_(TYPENAME) \
 __arith_expand(XOR_##TYPENAME, TYPENAME, ^) /* The explicitly typed standard functions */\
-__arith_expand(XOR__##TYPENAME##__##TYPENAME, TYPENAME, ^) /* Overloaded function */
+__arith_expand(XOR__##TYPENAME##__##TYPENAME, TYPENAME, ^) /* Overloaded function */\
 __ANY_NBIT(__iec_)
 #undef __iec_
 
@@ -890,11 +890,7 @@ __ANY_DATE(__iec_)
 __iec_(TIME)
 #undef __iec_
 
-static inline int __str_cmp(uint8_t* str1, __strlen_t len1, uint8_t* str2, __strlen_t len2) { 
-    int cmp = memcmp(str1, str2, len1 < len2 ? len1 : len2);
-    return cmp ? cmp : (len1 > len2 ? 1 : (len1 < len2 ? - 1 : 0));
-}
-#define __STR_CMP(str1, str2) __str_cmp(str1.body, str1.len, str2.body, str2.len)
+#define __STR_CMP(str1, str2) memcmp((char*)&str1.body,(char*)&str2.body, str1.len < str2.len ? str1.len : str2.len)
 
 /* Max for string data types */	
 __extrem_(MAX_STRING, STRING, __STR_CMP(op1,tmp) < 0) /* The explicitly typed standard functions */
@@ -1054,6 +1050,8 @@ static inline BOOL fname(EN_ENO_PARAMS UINT param_count, TYPENAME op1, ...){\
     /*     GT     */
     /**************/
 /* Comparison for numerical data types */
+__compare_num(GT_BOOL, BOOL, > )  /* The explicitly typed standard functions */
+__compare_num(GT__BOOL__BOOL, BOOL, > ) /* Overloaded function */
 #define __iec_(TYPENAME) \
 __compare_num(GT_##TYPENAME, TYPENAME, > ) /* The explicitly typed standard functions */\
 __compare_num(GT__BOOL__##TYPENAME, TYPENAME, > ) /* Overloaded function */
@@ -1077,6 +1075,8 @@ __compare_string(GT__BOOL__STRING, > ) /* Overloaded function */
     /*     GE     */
     /**************/
 /* Comparison for numerical data types */
+__compare_num(GE_BOOL, BOOL, >= )  /* The explicitly typed standard functions */
+__compare_num(GE__BOOL__BOOL, BOOL, >= ) /* Overloaded function */
 #define __iec_(TYPENAME) \
 __compare_num(GE_##TYPENAME, TYPENAME, >= ) /* The explicitly typed standard functions */\
 __compare_num(GE__BOOL__##TYPENAME, TYPENAME, >= ) /* Overloaded function */
@@ -1102,6 +1102,8 @@ __compare_string(GE__BOOL__STRING, >= ) /* Overloaded function */
     /*     EQ     */
     /**************/
 /* Comparison for numerical data types */
+__compare_num(EQ_BOOL, BOOL, == )  /* The explicitly typed standard functions */
+__compare_num(EQ__BOOL__BOOL, BOOL, == ) /* Overloaded function */
 #define __iec_(TYPENAME) \
 __compare_num(EQ_##TYPENAME, TYPENAME, == ) /* The explicitly typed standard functions */\
 __compare_num(EQ__BOOL__##TYPENAME, TYPENAME, == ) /* Overloaded function */
@@ -1126,6 +1128,8 @@ __compare_string(EQ__BOOL__STRING, == ) /* Overloaded function */
     /*     LT     */
     /**************/
 /* Comparison for numerical data types */
+__compare_num(LT_BOOL, BOOL, < )  /* The explicitly typed standard functions */
+__compare_num(LT__BOOL__BOOL, BOOL, < ) /* Overloaded function */
 #define __iec_(TYPENAME) \
 __compare_num(LT_##TYPENAME, TYPENAME, < ) /* The explicitly typed standard functions */\
 __compare_num(LT__BOOL__##TYPENAME, TYPENAME, < ) /* Overloaded function */
@@ -1150,6 +1154,8 @@ __compare_string(LT__BOOL__STRING, < ) /* Overloaded function */
     /*     LE     */
     /**************/
 /* Comparison for numerical data types */
+__compare_num(LE_BOOL, BOOL, <= )  /* The explicitly typed standard functions */
+__compare_num(LE__BOOL__BOOL, BOOL, <= ) /* Overloaded function */
 #define __iec_(TYPENAME) \
 __compare_num(LE_##TYPENAME, TYPENAME, <= ) /* The explicitly typed standard functions */\
 __compare_num(LE__BOOL__##TYPENAME, TYPENAME, <= ) /* Overloaded function */
@@ -1195,7 +1201,7 @@ static inline BOOL fname(EN_ENO_PARAMS TYPENAME op1, TYPENAME op2){\
 #define __iec_(TYPENAME) \
 __ne_num(NE_##TYPENAME, TYPENAME) /* The explicitly typed standard functions */\
 __ne_num(NE__BOOL__##TYPENAME##__##TYPENAME, TYPENAME) /* Overloaded function */
-__ANY_BIT(__iec_)
+__ANY_NBIT(__iec_)
 __ANY_NUM(__iec_)
 #undef __iec_
 
@@ -1446,7 +1452,6 @@ __ANY_INT(__iec_)
 static inline __strlen_t __pfind(STRING* IN1, STRING* IN2){
     UINT count1 = 0; /* offset of first matching char in IN1 */
     UINT count2 = 0; /* count of matching char */
-    if(!(IN2->len > 0 && IN1->len >= IN2->len)) return 0;
     while(count1 + count2 < IN1->len && count2 < IN2->len)
     {
         if(IN1->body[count1 + count2] != IN2->body[count2]){
@@ -1457,7 +1462,7 @@ static inline __strlen_t __pfind(STRING* IN1, STRING* IN2){
             count2++;
         }
     }
-    return count2 == IN2->len ? count1 + 1 : 0;
+    return count2 == IN2->len -1 ? 0 : count1 + 1;
 }
 
 #define __iec_(TYPENAME) \
@@ -1486,20 +1491,8 @@ static inline TIME ADD_TIME(EN_ENO_PARAMS TIME IN1, TIME IN2){
   return __time_add(IN1, IN2);
 }
 
-/* overloaded version of ADD(TIME, TIME) */
-static inline TIME ADD__TIME__TIME__TIME(EN_ENO_PARAMS TIME IN1, TIME IN2){
-  TEST_EN(TIME)
-  return __time_add(IN1, IN2);
-}
-
 static inline TOD ADD_TOD_TIME(EN_ENO_PARAMS TOD IN1, TIME IN2){
   TEST_EN(TOD)
-  return __time_add(IN1, IN2);
-}
-
-/* overloaded version of ADD(TOD, TIME) */
-static inline TOD ADD__TOD__TOD__TIME(EN_ENO_PARAMS TOD IN1, TIME IN2){
-  TEST_EN(TIME)
   return __time_add(IN1, IN2);
 }
 
@@ -1508,19 +1501,7 @@ static inline DT ADD_DT_TIME(EN_ENO_PARAMS DT IN1, TIME IN2){
   return __time_add(IN1, IN2);
 }
 
-/* overloaded version of ADD(DT, TIME) */
-static inline DT ADD__DT__DT__TIME(EN_ENO_PARAMS DT IN1, TIME IN2){
-  TEST_EN(TIME)
-  return __time_add(IN1, IN2);
-}
-
 static inline TIME SUB_TIME(EN_ENO_PARAMS TIME IN1, TIME IN2){
-  TEST_EN(TIME)
-  return __time_sub(IN1, IN2);
-}
-
-/* overloaded version of SUB(TIME, TIME) */
-static inline TIME SUB__TIME__TIME__TIME(EN_ENO_PARAMS TIME IN1, TIME IN2){
   TEST_EN(TIME)
   return __time_sub(IN1, IN2);
 }
@@ -1530,19 +1511,7 @@ static inline TIME SUB_DATE_DATE(EN_ENO_PARAMS DATE IN1, DATE IN2){
   return __time_sub(IN1, IN2);
 }
 
-/* overloaded version of SUB(DATE, DATE) */
-static inline TIME SUB__TIME__DATE__DATE(EN_ENO_PARAMS DATE IN1, DATE IN2){
-  TEST_EN(TIME)
-  return __time_sub(IN1, IN2);
-}
-
 static inline TOD SUB_TOD_TIME(EN_ENO_PARAMS TOD IN1, TIME IN2){
-  TEST_EN(TOD)
-  return __time_sub(IN1, IN2);
-}
-
-/* overloaded version of SUB(TOD, TIME) */
-static inline TOD SUB__TOD__TOD__TIME(EN_ENO_PARAMS TOD IN1, TIME IN2){
   TEST_EN(TOD)
   return __time_sub(IN1, IN2);
 }
@@ -1552,19 +1521,7 @@ static inline TIME SUB_TOD_TOD(EN_ENO_PARAMS TOD IN1, TOD IN2){
   return __time_sub(IN1, IN2);
 }
 
-/* overloaded version of SUB(TOD, TOD) */
-static inline TIME SUB__TIME__TOD__TOD(EN_ENO_PARAMS TOD IN1, TOD IN2){
-  TEST_EN(TIME)
-  return __time_sub(IN1, IN2);
-}
-
 static inline DT SUB_DT_TIME(EN_ENO_PARAMS DT IN1, TIME IN2){
-  TEST_EN(DT)
-  return __time_sub(IN1, IN2);
-}
-
-/* overloaded version of SUB(DT, TIME) */
-static inline DT SUB__DT__DT__TIME(EN_ENO_PARAMS DT IN1, TIME IN2){
   TEST_EN(DT)
   return __time_sub(IN1, IN2);
 }
@@ -1574,25 +1531,10 @@ static inline TIME SUB_DT_DT(EN_ENO_PARAMS DT IN1, DT IN2){
   return __time_sub(IN1, IN2);
 }
 
-/* overloaded version of SUB(DT, DT) */
-static inline TIME SUB__TIME__DT__DT(EN_ENO_PARAMS DT IN1, DT IN2){
-  TEST_EN(TIME)
-  return __time_sub(IN1, IN2);
-}
-
 
 /***  MULTIME  ***/
 #define __iec_(TYPENAME)\
 static inline TIME MULTIME__TIME__TIME__##TYPENAME(EN_ENO_PARAMS TIME IN1, TYPENAME IN2){\
-  TEST_EN(TIME)\
-  return __time_mul(IN1, (LREAL)IN2);\
-}
-__ANY_NUM(__iec_)
-#undef __iec_
-
-/***  MULTIME_TYPENAME  ***/
-#define __iec_(TYPENAME)\
-static inline TIME MULTIME_##TYPENAME(EN_ENO_PARAMS TIME IN1, TYPENAME IN2){\
   TEST_EN(TIME)\
   return __time_mul(IN1, (LREAL)IN2);\
 }
@@ -1611,15 +1553,6 @@ __ANY_NUM(__iec_)
 /***  DIVTIME  ***/
 #define __iec_(TYPENAME)\
 static inline TIME DIVTIME__TIME__TIME__##TYPENAME(EN_ENO_PARAMS TIME IN1, TYPENAME IN2){\
-  TEST_EN(TIME)\
-  return __time_div(IN1, (LREAL)IN2);\
-}
-__ANY_NUM(__iec_)
-#undef __iec_
-
-/***  DIVTIME_TYPENAME  ***/
-#define __iec_(TYPENAME)\
-static inline TIME DIVTIME_##TYPENAME(EN_ENO_PARAMS TIME IN1, TYPENAME IN2){\
   TEST_EN(TIME)\
   return __time_div(IN1, (LREAL)IN2);\
 }
