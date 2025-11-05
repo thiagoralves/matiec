@@ -46,6 +46,7 @@
 {#include "arduino.txt" }
 {#include "can.txt" }
 {#include "p1am.txt" }
+{#include "synergy.txt" }
 {#include "communication_blocks.txt" }
 
 

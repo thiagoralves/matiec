@@ -1891,6 +1891,7 @@ __end:
 
 #include "arduino_lib_FB.h"
 #include "p1am_FB.h"
+#include "synergy_FB.h"
 #include "communication.h"
 #include "can.h"
 
