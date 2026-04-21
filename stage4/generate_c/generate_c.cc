@@ -1694,6 +1694,11 @@ class generate_c_resources_c: public generate_c_base_and_typeid_c {
     declaretype_t wanted_declaretype;
 
     unsigned long long common_ticktime;
+
+    void print_task_identifier(symbol_c *task_name) {
+      s4o.print("__TASK_");
+      task_name->accept(*this);
+    }
     
     const char *current_program_name;
 
@@ -1956,7 +1961,7 @@ END_RESOURCE
           if (symbol->task_name != NULL) {
             s4o.print(s4o.indent_spaces);
             s4o.print("if (");
-            symbol->task_name->accept(*this);
+            print_task_identifier(symbol->task_name);
             s4o.print(") {\n");
             s4o.indent_right(); 
           }
@@ -1994,13 +1999,13 @@ END_RESOURCE
       switch (wanted_declaretype) {
         case declare_dt:
           s4o.print(s4o.indent_spaces + "BOOL ");
-          current_task_name->accept(*this);
+          print_task_identifier(current_task_name);
           s4o.print(";\n");
           symbol->task_initialization->accept(*this);
           break;
         case init_dt:
           s4o.print(s4o.indent_spaces);
-          current_task_name->accept(*this);
+          print_task_identifier(current_task_name);
           s4o.print(" = __BOOL_LITERAL(FALSE);\n");
           symbol->task_initialization->accept(*this);
           break;
@@ -2021,7 +2026,7 @@ END_RESOURCE
         case declare_dt:
           if (symbol->single_data_source != NULL) {
             s4o.print(s4o.indent_spaces + "R_TRIG ");
-            current_task_name->accept(*this);
+            print_task_identifier(current_task_name);
             s4o.print("_R_TRIG;\n");
           }
           break;
@@ -2030,7 +2035,7 @@ END_RESOURCE
             s4o.print(s4o.indent_spaces + "R_TRIG");
             s4o.print(FB_INIT_SUFFIX);
             s4o.print("(&");
-            current_task_name->accept(*this);
+            print_task_identifier(current_task_name);
             s4o.print("_R_TRIG, retain);\n");
           }
           break;
@@ -2057,26 +2062,26 @@ END_RESOURCE
             s4o.print("();");
             s4o.print(SET_VAR);
             s4o.print("(");
-            current_task_name->accept(*this);
+            print_task_identifier(current_task_name);
             s4o.print("_R_TRIG.,CLK,, *");
             symbol->single_data_source->accept(*this);
             s4o.print(");}\n");
             s4o.print(s4o.indent_spaces + "R_TRIG");
             s4o.print(FB_FUNCTION_SUFFIX);
             s4o.print("(&");
-            current_task_name->accept(*this);
+            print_task_identifier(current_task_name);
             s4o.print("_R_TRIG);\n");
             s4o.print(s4o.indent_spaces);
-            current_task_name->accept(*this);
+            print_task_identifier(current_task_name);
             s4o.print(" = ");
             s4o.print(GET_VAR);
             s4o.print("(");
-            current_task_name->accept(*this);
+            print_task_identifier(current_task_name);
             s4o.print("_R_TRIG.Q)");
           }
           else {
             s4o.print(s4o.indent_spaces);
-            current_task_name->accept(*this);
+            print_task_identifier(current_task_name);
             s4o.print(" = ");
             if (symbol->interval_data_source != NULL) {
               unsigned long long int time = calculate_time(symbol->interval_data_source);
