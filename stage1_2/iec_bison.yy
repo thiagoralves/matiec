@@ -7721,7 +7721,7 @@ unary_expression:
   primary_expression
 | '-' non_int_or_real_primary_expression
 	{$$ = new neg_expression_c($2, locloc(@$));}
-| NOT primary_expression
+| NOT unary_expression
 	{$$ = new not_expression_c($2, locloc(@$));}
 /* ERROR_CHECK_BEGIN */
 | '-' error
